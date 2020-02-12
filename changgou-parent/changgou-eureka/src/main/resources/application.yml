@@ -1,0 +1,13 @@
+server:
+  port: 7001        #端口
+eureka:
+  instance:
+    hostname: 127.0.0.1        #IP
+  client:
+    register-with-eureka: false   #是否将自己注册到eureka中
+    fetch-registry: false         #是否从eureka中获取信息
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/        #eureka的地址
+spring:
+  application:
+    name: eureka    #服务的名字

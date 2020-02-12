@@ -1,0 +1,6 @@
+# Project exclude paths
+/changgou-parent/changgou-common/target/
+/changgou-parent/changgou-eureka/target/
+/changgou-parent/changgou-service/changgou-service-file/target/
+/changgou-parent/changgou-service/changgou-service-goods/target/
+/changgou-parent/changgou-service-api/changgou-service-goods-api/target/
