@@ -14,6 +14,30 @@ import java.util.List;
 public interface SpuService {
 
     /**
+     * 批量上架商品
+     * @param ids：要上架的所有商品ID：spuID
+     */
+    void batchPut(Long[] ids);
+
+    /***
+     * 商品上架
+     * @param spuId
+     */
+    void put(Long spuId);
+
+    /**
+     * 商品下架
+     * @param spuId
+     */
+    void pull(Long spuId);
+
+    /**
+     * 商品审核
+     * @param spuId
+     */
+    void audit(Long spuId);
+
+    /**
      * 根据spuID获取goods对象的信息
      * @param id
      * @return

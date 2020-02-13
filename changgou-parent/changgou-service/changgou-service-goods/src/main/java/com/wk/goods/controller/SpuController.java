@@ -26,6 +26,50 @@ public class SpuController {
     private SpuService spuService;
 
     /**
+     * 商品上架
+     * @param ids：要上架多个商品的spuID
+     * @return
+     */
+    @PutMapping("/put/many")
+    public Result put(@RequestBody Long[] ids){
+        spuService.batchPut(ids);
+        return new Result(true,StatusCode.OK,"批量上架商品成功");
+    }
+
+    /**
+     * 商品上架
+     * @param spuId
+     * @return
+     */
+    @PutMapping("/put/{id}")
+    public Result put(@PathVariable("id") Long spuId){
+        spuService.put(spuId);
+        return new Result(true,StatusCode.OK,"商品上架成功");
+    }
+
+    /**
+     * 商品下架
+     * @param spuId
+     * @return
+     */
+    @PutMapping("/pull/{id}")
+    public Result pull(@PathVariable("id") Long spuId){
+        spuService.pull(spuId);
+        return new Result(true,StatusCode.OK,"商品下架成功");
+    }
+
+    /**
+     * 商品审核上架
+     * @param spuId
+     * @return
+     */
+    @PutMapping("/audit/{id}")
+    public Result audit(@PathVariable("id") Long spuId){
+        spuService.audit(spuId);
+        return new Result(true,StatusCode.OK,"商品审核成功");
+    }
+
+    /**
      * 根据spuID查询goods数据
      * @param spuId
      * @return
