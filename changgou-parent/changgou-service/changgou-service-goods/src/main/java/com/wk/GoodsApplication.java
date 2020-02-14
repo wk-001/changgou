@@ -1,4 +1,4 @@
-package com.wk.goods;
+package com.wk;
 
 import entity.IdWorker;
 import org.springframework.boot.SpringApplication;
