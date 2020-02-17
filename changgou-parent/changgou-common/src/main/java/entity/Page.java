@@ -21,9 +21,11 @@ public class Page <T> implements Serializable{
 
 	// 最后一页
 	private int last;
-	
+
+	//起始页
 	private int lpage;
-	
+
+	//结束页
 	private int rpage;
 	
 	//从哪条开始查

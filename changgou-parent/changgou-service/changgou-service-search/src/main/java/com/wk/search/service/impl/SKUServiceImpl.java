@@ -26,6 +26,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 
@@ -249,7 +250,7 @@ public class SKUServiceImpl implements SKUService {
         //高亮后缀
         field.postTags("</em>");
         //碎片长度。关键词数据的长度，有默认值
-        field.fragmentSize(20);
+        field.fragmentSize(200);
 
         //添加高亮
         queryBuilder.withHighlightFields(field);
@@ -313,6 +314,15 @@ public class SKUServiceImpl implements SKUService {
         resultMap.put("rows",skuInfoList);
         resultMap.put("total",totalElements);
         resultMap.put("totalPages",totalPages);
+
+        //获取搜索封装信息
+        NativeSearchQuery query = queryBuilder.build();
+        Pageable pageable = query.getPageable();        //分页信息
+        int pageSize = pageable.getPageSize();          //每页显示的条数
+        int pageNumber = pageable.getPageNumber();      //当前页码
+        //分页数据
+        resultMap.put("pageSize",pageSize);
+        resultMap.put("pageNumber",pageNumber);
         return resultMap;
     }
 
