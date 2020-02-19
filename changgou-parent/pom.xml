@@ -33,6 +33,14 @@
 
     <!--依赖包-->
     <dependencies>
+
+        <!--JWT鉴权-->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.9.0</version>
+        </dependency>
+
         <!--测试包-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

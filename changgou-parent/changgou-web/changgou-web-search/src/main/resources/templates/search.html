@@ -492,7 +492,7 @@
                     <!--循环以spec_开头的数据-->
 					<li th:each="spec:${searchMap}" th:if="${#strings.startsWith(spec.key,'spec_')}" class="with-x">
                         <!--去掉数据开头的spec_-->
-                        <em th:text="${#strings.replace(spec.key,'spec_','')}"></em>:<em th:text="${spec.value}"></em>
+                        <em th:text="${#strings.replace(spec.key,'spec_','')}"></em>:<em th:text="${#strings.replace(spec.value,'%2B','+')}"></em>
                         <!--点击"x"，将当前URL中关于spec的内容替换为空字符串-->
                         <a th:href="@{${#strings.replace(url,spec.key+'='+spec.value,'')}}">×</a>
                     </li>
@@ -676,7 +676,7 @@
 								<a th:href="@{${url}(pageNum=${pageInfo.upper})}">«上一页</a>
 							</li>
                             <!--
-                                numbers.sequence：指定起始页和结束页
+                                numbers.sequence：指定起始页和结束页，从参数1迭代递增到参数2
                                 i:当前被循环的对象
                                 ${pageInfo.currentpage}==${i}：判断是否为当前页，只有当前页的页码有样式
                                 ${url}带有排序功能，可以在排序的状态下分页

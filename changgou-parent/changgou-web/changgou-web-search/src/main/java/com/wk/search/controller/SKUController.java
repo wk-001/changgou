@@ -26,6 +26,8 @@ public class SKUController {
      */
     @GetMapping("list")
     public String search(@RequestParam(required = false)Map<String,String> searchMap, Model model){
+        //替换特殊字符
+        handlerSearchMap(searchMap);
         //通过feign调用changgou-service-search搜索微服务
         Map<String,Object> resultMap = skuFeign.search(searchMap);
         model.addAttribute("resultMap",resultMap);
@@ -91,4 +93,21 @@ public class SKUController {
 
         return new String[]{url.toString(),sortUrl.toString()};
     }
+
+    /**
+     * 替换特殊字符
+     * 如果以GET方式请求，参数会拼接到URL上去，此时后台传输数据的时候，会将+>等特殊字符变成空格，需要对它进行转义，
+     * 很有可能在规格中存在特殊字符，例如移动3G+联通3G这里的加号就属于特殊字符，可以在后台接收的参数那里做统一处理。
+     */
+    public void handlerSearchMap(Map<String,String> searchMap){
+        if (searchMap != null) {
+            for (Map.Entry<String, String> entry : searchMap.entrySet()) {
+                if (entry.getKey().startsWith("spec_")) {
+                    //将规格参数中的+号替换
+                    entry.setValue(entry.getValue().replace("+","%2B"));
+                }
+            }
+        }
+    }
+
 }

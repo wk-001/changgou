@@ -11,6 +11,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>changgou-web-search</module>
+        <module>changgou-web-item</module>
     </modules>
     <artifactId>changgou-web</artifactId>
 

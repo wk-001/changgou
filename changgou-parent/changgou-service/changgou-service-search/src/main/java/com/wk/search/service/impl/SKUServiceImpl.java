@@ -175,7 +175,7 @@ public class SKUServiceImpl implements SKUService {
                 String key = entry.getKey();
                 if(key.startsWith("spec_")){
                     //规格条件的值
-                    String value = entry.getValue();
+                    String value = entry.getValue().replace("\\","");
                     //搜索条件为spec_xxx去掉前面的spec_ .keyword表示不分词
                     boolQueryBuilder.must(QueryBuilders.termQuery("specMap."+key.substring(5)+".keyword",value));
                 }

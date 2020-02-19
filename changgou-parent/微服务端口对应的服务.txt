@@ -1,0 +1,8 @@
+18081：goods			商品上架、下架、审批
+18082：file			    文件上传
+18083：canal
+18084：content			广告以及缓存
+18085：service-search	后台搜索
+18086：web-search		前台搜索
+18087：web-item		    商品详情页
+18088：user			    用户

@@ -1,0 +1,57 @@
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]': # 匹配所有请求
+            allowedOrigins: "*" #跨域处理 允许所有的域
+            allowedMethods: # 支持的方法、提交方式
+              - GET
+              - POST
+              - PUT
+              - DELETE
+      routes:
+            - id: changgou_goods_route        #唯一标识符
+              #uri: http://localhost:18081    #用户的请求需要路由到指定路径的服务/指定要路由的服务路径
+              uri: lb://goods                 #根据服务的名称判断来做负载均衡操作；lb：LoadBalancerClient ；goods：微服务名称；该配置主要应用于集群环境
+              predicates:                     #路由断言/路由规则设置
+                #- Host=cloud.itheima.com**     #Host 路由 用户请求的域名规则配置，所有以cloud.itheima.com开头的请求都会被路由到18081的微服务
+                #- Path=/brand/**                #路径匹配过滤配置，所有以brand开头的请求都会被路由到18081的微服务
+                - Path=/api/goods/**                      #路径匹配过滤配置，所有请求都会被路由到18081的微服务
+                #- Path=/api/brand/**
+              filters:                        #过滤条件
+                #- PrefixPath=/brand             #用户请求http://localhost:8001的时候我们让它请求真实地址http://localhost:8001/brand
+                - StripPrefix=1                 #过滤请求中的第一个路径，=2就过滤前两个路径，如请求http://localhost:8001/api/brand 真实请求http://localhost:8001/brand，请求路径以/区分,一个/代表一个路径
+                - name: RequestRateLimiter      #局部限流过滤器，请求数限流 名字固定 ，使用默认的facatory
+                  args:
+                    key-resolver: "#{@ipKeyResolver}"           #用户身份唯一标识符。获取Spring容器中的ipKeyResolver对象
+                    redis-rate-limiter.replenishRate: 1         #每秒钟只允许有一个请求
+                    redis-rate-limiter.burstCapacity: 1         #允许最大并发4个请求，宽限个数
+            - id: changgou_user_route
+              uri: lb://user
+              predicates:                     #路由断言/路由规则设置
+              - Path=/api/user/**,/api/address/**,/api/areas/**,/api/cities/**,/api/provinces/**
+              filters:
+              - StripPrefix=1
+  application:
+    name: gateway-web
+  #Redis配置
+  redis:
+    host: 192.168.0.167
+    port: 6379
+
+server:
+  port: 8001
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:7001/eureka
+  instance:
+    prefer-ip-address: true
+management:
+  endpoint:
+    gateway:
+      enabled: true
+    web:
+      exposure:
+        include: true
