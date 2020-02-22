@@ -1,7 +1,5 @@
 package com.wk.filter;
 
-import com.wk.utils.JwtUtil;
-import io.jsonwebtoken.Claims;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -21,8 +19,11 @@ import reactor.core.publisher.Mono;
 @Component
 public class AuthorizeFilter implements GlobalFilter, Ordered {
 
-    //令牌名字
+    //用户请求参数|头文件|cookie中令牌参数名字
     private static final String AUTHORIZE_TOKEN = "Authorization";
+
+    //用户登录地址
+    private static final String USER_LOGIN_URL = "http://localhost:9001/oauth/login";
 
     /**
      * 全局拦截
@@ -61,11 +62,14 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
             }
         }
 
-        // 如果没有令牌，则拦截
+        // 如果没有令牌，则重定向到登录页面
         if (StringUtils.isEmpty(token)) {
             //设置没有权限的状态码 401
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            //响应空数据
+            //response.setStatusCode(HttpStatus.UNAUTHORIZED);
+
+            response.setStatusCode(HttpStatus.SEE_OTHER);
+            //记录用户要访问的页面
+            response.getHeaders().set("Location",USER_LOGIN_URL+"?from="+request.getURI());
             return response.setComplete();      //设置响应数据为空
         }
 
@@ -113,4 +117,5 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
     public int getOrder() {
         return 0;
     }
+
 }

@@ -25,8 +25,14 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().antMatchers(
-                "/user/login",
-                "/user/logout");
+                "/user/login"
+                ,"/user/logout"
+                ,"/oauth/login"
+                ,"/css/**"
+                ,"/data/**"
+                ,"/fonts/**"
+                ,"/img/**"
+                ,"/js/**");
     }
 
     /***
@@ -70,6 +76,8 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()    //限制基于Request请求访问
                 .anyRequest()
                 .authenticated();       //其他请求都需要经过验证
-
+        http.formLogin()
+                .loginPage("/oauth/login")  //自定义登录地址
+                .loginProcessingUrl("/user/login");     //登录处理地址（SpringSecurity内置登录地址）
     }
 }

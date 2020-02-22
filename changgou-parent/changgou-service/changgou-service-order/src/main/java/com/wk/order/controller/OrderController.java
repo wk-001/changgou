@@ -5,6 +5,7 @@ import com.wk.order.pojo.Order;
 import com.wk.order.service.OrderService;
 import entity.Result;
 import entity.StatusCode;
+import entity.TokenDecode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -97,6 +98,10 @@ public class OrderController {
      */
     @PostMapping
     public Result add(@RequestBody   Order order){
+        //获取当前用户名，并赋值给order对象
+        String username = TokenDecode.getUserInfo().get("username");
+        order.setUsername(username);
+
         //调用OrderService实现添加Order
         orderService.add(order);
         return new Result(true,StatusCode.OK,"添加成功");

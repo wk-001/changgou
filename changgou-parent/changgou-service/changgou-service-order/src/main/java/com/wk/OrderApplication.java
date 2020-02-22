@@ -1,6 +1,7 @@
 package com.wk;
 
 import entity.FeignInterceptor;
+import entity.IdWorker;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
@@ -10,7 +11,7 @@ import tk.mybatis.spring.annotation.MapperScan;
 
 @SpringBootApplication
 @EnableEurekaClient
-@EnableFeignClients
+@EnableFeignClients(basePackages = {"com.wk.goods.feign","com.wk.user.feign"})
 @MapperScan(basePackages = {"com.wk.order.dao"})
 public class OrderApplication {
 
@@ -25,5 +26,13 @@ public class OrderApplication {
     @Bean
     public FeignInterceptor feignInterceptor(){
         return new FeignInterceptor();
+    }
+
+    /**
+     * ID生成器，用于生成订单ID，注入到Spring容器中
+     */
+    @Bean
+    public IdWorker idWorker(){
+        return new IdWorker();
     }
 }

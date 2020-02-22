@@ -11,6 +11,7 @@ import org.springframework.util.StringUtils;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
+import java.util.Map;
 
 /****
  * @Author:admin
@@ -202,5 +203,22 @@ public class SkuServiceImpl implements SkuService {
     @Override
     public List<Sku> findAll() {
         return skuMapper.selectAll();
+    }
+
+    @Override
+    public void decrCount(Map<String, Integer> decrMap) {
+        for (Map.Entry<String, Integer> entry : decrMap.entrySet()) {
+            //商品ID
+            String skuId = entry.getKey();
+            //递减数量
+            Object value = entry.getValue();
+            Integer num = Integer.parseInt(value.toString());
+            /*利用MySQL InnoDB引擎行级锁的天生特性控制商品超卖现象
+            * 数据库的每条记录都有行级锁，同一时间只允许一个事务修改该条数据，只有等该事务结束后，其他事务才能继续操作*/
+            int count = skuMapper.decrCount(skuId,num);
+            if (count == 0) {
+                throw new RuntimeException("库存不足！");
+            }
+        }
     }
 }

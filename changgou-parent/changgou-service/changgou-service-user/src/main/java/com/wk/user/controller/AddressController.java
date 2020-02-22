@@ -5,6 +5,7 @@ import com.wk.user.pojo.Address;
 import com.wk.user.service.AddressService;
 import entity.Result;
 import entity.StatusCode;
+import entity.TokenDecode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +24,17 @@ public class AddressController {
 
     @Autowired
     private AddressService addressService;
+
+    /**
+     * 根据用户的登录名查询用户收件地址列表信息
+     * @return
+     */
+    @GetMapping(value = "/user/list")
+    public Result<List<Address>> list(){
+        //从令牌中获取用户的登录名
+        String username = TokenDecode.getUserInfo().get("username");
+        return new Result<>(true,StatusCode.OK,"查询成功！",addressService.list(username));
+    }
 
     /***
      * Address分页条件搜索实现

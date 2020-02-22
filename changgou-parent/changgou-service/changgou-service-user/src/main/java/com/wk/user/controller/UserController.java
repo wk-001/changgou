@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageInfo;
 import com.wk.user.pojo.User;
 import com.wk.user.service.UserService;
-import entity.BCrypt;
-import entity.JwtUtil;
-import entity.Result;
-import entity.StatusCode;
+import entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +29,19 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    /***
+     * 增加用户积分
+     * @param points:要添加的积分
+     */
+    @GetMapping(value = "/points/add")
+    public Result addPoints(Integer points){
+        String username = TokenDecode.getUserInfo().get("username");
+        //添加积分
+        userService.addUserPoints(username,points);
+        return new Result(true,StatusCode.OK,"添加积分成功！");
+    }
+
 
     /**
      * 用户登录

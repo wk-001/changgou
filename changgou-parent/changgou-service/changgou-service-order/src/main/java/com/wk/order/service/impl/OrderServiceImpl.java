@@ -2,15 +2,21 @@ package com.wk.order.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.wk.goods.feign.SKUFeign;
+import com.wk.order.dao.OrderItemMapper;
 import com.wk.order.dao.OrderMapper;
 import com.wk.order.pojo.Order;
+import com.wk.order.pojo.OrderItem;
 import com.wk.order.service.OrderService;
+import com.wk.user.feign.UserFeign;
+import entity.IdWorker;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.List;
+import java.util.*;
 
 /****
  * @Author:admin
@@ -23,6 +29,88 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderMapper orderMapper;
 
+    @Autowired
+    private IdWorker idWorker;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Autowired
+    private OrderItemMapper orderItemMapper;
+
+    @Autowired
+    private SKUFeign skuFeign;
+
+    @Autowired
+    private UserFeign userFeign;
+
+    /**
+     * 增加Order和订单的商品明细
+     * @param order
+     */
+    @Override
+    public void add(Order order){
+        /**
+         * 需要添加的功能：
+         *  1、价格校验，避免价格变动，以当前数据库的价格为准
+         *  2、移除购物车中已经创建订单的商品。点击订单结算将商品ID传到提交订单页面
+         */
+        order.setId(idWorker.nextId()+"");  //订单ID
+
+
+        List<OrderItem> list = new ArrayList<>();
+
+
+        for (Long skuId : order.getSkuIds()) {
+            //根据商品ID获取购物车集合中的存放的订单商品信息
+            list.add((OrderItem) redisTemplate.boundHashOps("Cart_" + order.getUsername()).get(skuId));
+            //获取订单中被勾选的商品ID，从购物车中移除
+            redisTemplate.boundHashOps("Cart_" + order.getUsername()).delete(skuId);
+        }
+
+
+        Map<String,Integer> decrMap = new HashMap<>();
+
+        int totalNum = 0;       //订单商品总数量
+        int totalMoney = 0;     //订单商品总价格
+        for (OrderItem orderItem : list) {
+            //封装商品库存递减数据
+            decrMap.put(orderItem.getSkuId().toString(),orderItem.getNum());
+
+            totalMoney+=orderItem.getMoney();
+            totalNum+=orderItem.getNum();
+
+            //订单明细的ID
+            orderItem.setId(idWorker.nextId()+"");
+            //订单明细所属的订单ID
+            orderItem.setOrderId(order.getId());
+            //是否退货
+            orderItem.setIsReturn("0");
+            //商品明细添加多次
+            orderItemMapper.insertSelective(orderItem);
+        }
+
+        //订单添加1次
+        /*订单中商品的总数量 = 订单中每个商品总数量之和
+        * 获取方法：从Redis的购物车集合中获取订单明细，循环订单明细，每个商品的购买数量叠加*/
+        order.setTotalNum(totalNum);
+        order.setTotalMoney(totalMoney);             //订单总金额，获取方法同数量
+        order.setPayMoney(totalMoney);               //实付金额，总金额-优惠价格
+        Date date = new Date();
+        order.setCreateTime(date);          //订单创建时间
+        order.setUpdateTime(date);          //订单更新时间
+        order.setSourceType("1");           //订单来源，1：web网页
+        order.setOrderStatus("0");          //订单状态，0：未支付
+        order.setPayStatus("0");            //支付状态，0：未支付
+        order.setIsDelete("0");             //是否删除，0：未删除
+        orderMapper.insertSelective(order);
+
+        //商品库存递减
+        skuFeign.decrCount(decrMap);
+
+        //用户下订单后增加积分活跃度
+        userFeign.addPoints(1);
+    }
 
     /**
      * Order条件+分页查询
@@ -206,15 +294,6 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void update(Order order){
         orderMapper.updateByPrimaryKey(order);
-    }
-
-    /**
-     * 增加Order
-     * @param order
-     */
-    @Override
-    public void add(Order order){
-        orderMapper.insert(order);
     }
 
     /**
