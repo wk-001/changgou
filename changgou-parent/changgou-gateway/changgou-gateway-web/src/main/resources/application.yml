@@ -11,7 +11,7 @@ spring:
               - PUT
               - DELETE
       routes:
-            - id: changgou_goods_route        #唯一标识符
+            - id: changgou_goods_route        #商品微服务唯一标识符
               #uri: http://localhost:18081    #用户的请求需要路由到指定路径的服务/指定要路由的服务路径
               uri: lb://goods                 #根据服务的名称判断来做负载均衡操作；lb：LoadBalancerClient ；goods：微服务名称；该配置主要应用于集群环境
               predicates:                     #路由断言/路由规则设置
@@ -27,13 +27,21 @@ spring:
                     key-resolver: "#{@ipKeyResolver}"           #用户身份唯一标识符。获取Spring容器中的ipKeyResolver对象
                     redis-rate-limiter.replenishRate: 1         #每秒钟只允许有一个请求
                     redis-rate-limiter.burstCapacity: 1         #允许最大并发4个请求，宽限个数
-            - id: changgou_user_route
+
+            - id: changgou_user_route        #用户微服务唯一标识符
               uri: lb://user
               predicates:                     #路由断言/路由规则设置
               - Path=/api/user/**,/api/address/**,/api/areas/**,/api/cities/**,/api/provinces/**
               filters:
               - StripPrefix=1
-  application:
+
+            - id: changgou_order_route
+              uri: lb://order
+              predicates:
+              - Path=/api/cart/**,/api/categoryReport/**,/api/orderConfig/**,/api/order/**,/api/orderItem/**,/api/orderLog/**,/api/preferential/**,/api/returnCause/**,/api/returnOrder/**,/api/returnOrderItem/**
+              filters:
+              - StripPrefix=1
+    application:
     name: gateway-web
   #Redis配置
   redis:

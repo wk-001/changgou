@@ -3,10 +3,7 @@ package com.wk.goods.feign;
 import com.wk.goods.pojo.Sku;
 import entity.Result;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @FeignClient(name="goods")      //调用goods微服务中的方法
@@ -28,4 +25,12 @@ public interface SKUFeign {
      */
     @PostMapping(value = "/search" )
     Result<List<Sku>> findList(@RequestBody(required = false) Sku sku);
+
+    /***
+     * 根据ID查询Sku数据
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    Result<Sku> findById(@PathVariable Long id);
 }

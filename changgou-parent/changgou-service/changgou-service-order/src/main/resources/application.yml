@@ -1,0 +1,34 @@
+server:
+  port: 18089
+spring:
+  application:
+    name: order
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.0.167:3306/changgou_order?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: 123456
+  redis:
+    host: 192.168.0.167
+    port: 6379
+  main:
+    allow-bean-definition-overriding: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:7001/eureka
+  instance:
+    prefer-ip-address: true
+#开启Feign的熔断，默认隔离策略/方式是线程池隔离
+feign:
+  hystrix:
+    enabled: true
+
+#hystrix 配置
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: SEMAPHORE       #信号量隔离策略

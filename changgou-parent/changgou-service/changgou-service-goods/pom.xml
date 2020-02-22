@@ -13,6 +13,13 @@
 
     <description>商品微服务工程，对数据库changgou_goods的管理</description>
     <dependencies>
+
+        <!--OAuth2.0认证包-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-oauth2</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.wk</groupId>
             <artifactId>changgou-service-goods-api</artifactId>

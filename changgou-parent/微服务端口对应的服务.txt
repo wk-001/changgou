@@ -6,6 +6,7 @@
 18086：web-search		前台搜索
 18087：web-item		    商品详情页
 18088：user			    用户
+18089：order			订单、购物车
 
 7001：Eureka             注册中心
 8001：GetWay             网关

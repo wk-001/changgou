@@ -35,6 +35,12 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
 
+        //用户如果发送登录或一些不需要做权限认证的请求，直接放行
+        String uri = request.getURI().toString();
+        if(URLFilter.hasAuthorize(uri)){
+            chain.filter(exchange);
+        }
+
         //获取用户令牌信息，令牌可能存在
         // 请求头文件中，获取请求头中第一个令牌信息
         String token = request.getHeaders().getFirst(AUTHORIZE_TOKEN);
@@ -64,18 +70,36 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
         }
 
         //如果有令牌，则校验令牌是否有效
-        try {
-            JwtUtil.parseJWT(token);
+       /* try {
+            //JwtUtil.parseJWT(token);
         } catch (Exception e) {
             //令牌无效，拦截
             //设置没有权限的状态码 401
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             //响应空数据
             return response.setComplete();      //设置响应数据为空
-        }
+        }*/
 
-        //将令牌封装到头文件中，传递给下一个微服务，否则Oauth2.0无法校验令牌
-        request.mutate().header(AUTHORIZE_TOKEN,token);
+        /*使用证书、公钥私钥的校验方法，
+        判断令牌是否为空，如果不为空，将令牌放到头文件中并放行
+        令牌为空，则不允许访问，直接拦截*/
+        if(StringUtils.isEmpty(token)){
+            //令牌无效，拦截
+            //设置没有权限的状态码 401
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+            //响应空数据
+            return response.setComplete();      //设置响应数据为空
+        }else {
+            //将令牌封装到头文件中，传递给下一个微服务，否则Oauth2.0无法校验令牌
+            if (!hasToken){
+                //判断当前令牌是否有"bearer "的前缀，如果没有则添加前缀，字母后面有一个空格
+                if(!token.startsWith("bearer ")&&!token.startsWith("Bearer ")){
+                    token = "bearer "+token;
+                }
+                //一个请求头只能存在一个token
+                request.mutate().header(AUTHORIZE_TOKEN,token);
+            }
+        }
 
         //令牌有效，放行
         return chain.filter(exchange);
