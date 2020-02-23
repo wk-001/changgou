@@ -3,6 +3,7 @@ package com.wk.order.service;
 import com.github.pagehelper.PageInfo;
 import com.wk.order.pojo.Order;
 
+import java.text.ParseException;
 import java.util.List;
 
 /****
@@ -11,6 +12,19 @@ import java.util.List;
  * @Date 2019/6/14 0:16
  *****/
 public interface OrderService {
+
+    /**
+     * 删除订单（修改状态）状态回滚库存
+     */
+    void deleteOrder(String outTradeNo);
+
+    /**
+     * 用户支付后修改订单状态
+     * @param outTradeNo    订单号
+     * @param payTime       用户支付时间
+     * @param transactionId 交易流水号
+     */
+    void updateStatus(String outTradeNo,String payTime,String transactionId) throws ParseException;
 
     /***
      * Order多条件分页查询

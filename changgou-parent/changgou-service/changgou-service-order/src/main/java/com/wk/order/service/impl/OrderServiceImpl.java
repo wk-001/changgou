@@ -10,12 +10,18 @@ import com.wk.order.pojo.OrderItem;
 import com.wk.order.service.OrderService;
 import com.wk.user.feign.UserFeign;
 import entity.IdWorker;
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessagePostProcessor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import tk.mybatis.mapper.entity.Example;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /****
@@ -43,6 +49,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private UserFeign userFeign;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     /**
      * 增加Order和订单的商品明细
@@ -110,6 +119,52 @@ public class OrderServiceImpl implements OrderService {
 
         //用户下订单后增加积分活跃度
         userFeign.addPoints(1);
+
+        String format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        System.out.println("订单创建时间 = " + format);
+
+        /*用户下单后向rabbitMQ中的Queue1发送一个有效期30分钟的消息，
+        用来判断用户是否在30分钟内支付，没有支付就取消订单*/
+        rabbitTemplate.convertAndSend("orderDelayQueue", (Object) order.getId(), new MessagePostProcessor() {
+            @Override
+            public Message postProcessMessage(Message message) throws AmqpException {
+                //设置消息延时读取 设置延时10秒方便测试
+                message.getMessageProperties().setExpiration("10000");
+                return message;
+            }
+        });
+    }
+
+    @Override
+    public void deleteOrder(String outTradeNo) {
+        Order order = orderMapper.selectByPrimaryKey(outTradeNo);
+        order.setUpdateTime(new Date());
+        order.setPayStatus("2");      //支付失败
+        orderMapper.updateByPrimaryKeySelective(order);
+        //回滚库存 调用goods微服务
+    }
+
+    /**
+     * 用户支付后修改订单状态
+     * @param outTradeNo    订单号
+     * @param payTime       用户支付时间
+     * @param transactionId 交易流水号
+     */
+    @Override
+    public void updateStatus(String outTradeNo, String payTime, String transactionId) throws ParseException {
+        //时间转换
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        Date paytimes = sdf.parse(payTime);
+
+        //查询订单信息
+        Order order = orderMapper.selectByPrimaryKey(outTradeNo);
+
+        //修改订单信息
+        order.setPayTime(paytimes);     //支付时间
+        order.setPayType("1");  //支付状态
+        order.setTransactionId(transactionId);      //交易流水号
+
+        orderMapper.updateByPrimaryKeySelective(order);
     }
 
     /**
