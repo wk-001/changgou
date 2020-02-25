@@ -8,6 +8,7 @@
 18088：user			    用户
 18089：order			订单、购物车
 18090：pay               支付
+18091：seskill           秒杀
 
 7001：Eureka             注册中心
 8001：GetWay             网关
