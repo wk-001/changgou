@@ -2,6 +2,7 @@ package com.wk.seckill.service;
 
 import com.github.pagehelper.PageInfo;
 import com.wk.seckill.pojo.SeckillOrder;
+import entity.SeckillStatus;
 
 import java.util.List;
 
@@ -11,6 +12,27 @@ import java.util.List;
  * @Date 2019/6/14 0:16
  *****/
 public interface SeckillOrderService {
+
+    /**
+     * 删除30分钟内未支付的订单，并回滚库存
+     * @param username
+     */
+    void deleteOrder(String username);
+
+    /**
+     * 修改秒杀订单支付状态
+     * @param username
+     * @param transactionId 交易流水号
+     * @param endTime   支付交易时间
+     */
+    void updatePayStatus(String username,String transactionId,String endTime);
+
+    /**
+     * 每个用户只能有一个秒杀订单，根据用户名查询秒杀订单状态
+     * @param userName
+     * @return
+     */
+    SeckillStatus getStatus(String userName);
 
     /***
      * SeckillOrder多条件分页查询
@@ -66,4 +88,12 @@ public interface SeckillOrderService {
      * @return
      */
     List<SeckillOrder> findAll();
+
+    /**
+     * 添加秒杀订单
+     * @param time
+     * @param goodsId
+     * @param userName
+     */
+    Boolean addOrder(String time, Long goodsId, String userName);
 }

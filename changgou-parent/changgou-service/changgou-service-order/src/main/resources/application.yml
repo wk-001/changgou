@@ -45,7 +45,12 @@ mq:
     #要发给哪个交换机
     exchange:
       order: exchange.order
+      seckillorder: exchange.seckillorder
+    #要监听的队列
     queue:
       order: queue.order
+      seckillorder: queue.seckillorder
+    #路由的名字
     routing:
       key: queue.order
+      seckillkey: queue.seckillorder

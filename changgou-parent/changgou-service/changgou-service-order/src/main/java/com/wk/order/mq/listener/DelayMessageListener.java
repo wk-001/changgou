@@ -11,7 +11,7 @@ import java.util.Date;
  * 监听Queue2中的过期消息，Queue1中的消息超过指定时间会自动发送到Queue2死信队列
  */
 @Component
-@RabbitListener(queues = "orderListenerQueue")
+@RabbitListener(queues = "orderListenerQueue")      //指定监听队列
 public class DelayMessageListener {
 
     /**

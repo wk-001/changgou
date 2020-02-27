@@ -49,11 +49,15 @@ public class WeixinPayController {
         String xmlResult = new String(bytes,"UTF-8");
 
         //xml字符串转map
-        Map<String, String> stringMap = WXPayUtil.xmlToMap(xmlResult);
-        System.out.println("stringMap = " + stringMap);
+        Map<String, String> resultMap = WXPayUtil.xmlToMap(xmlResult);
+        System.out.println("resultMap = " + resultMap);
 
-        //发送支付结果给MQ
-        rabbitTemplate.convertAndSend("exchange.order","queue.order", JSON.toJSONString(stringMap));
+        //获取自定义参数attach并转成Map类型
+        Map<String,String> attach = JSON.parseObject(resultMap.get("attach"), Map.class);
+
+        //发送支付结果给MQ，如果队列名字能够从微信支付服务器哪边返回就可以动态设置Queue的名字
+        rabbitTemplate.convertAndSend(attach.get("exchange"),attach.get("routingKey"), JSON.toJSONString(resultMap));
+//        rabbitTemplate.convertAndSend("exchange.order","queue.order", JSON.toJSONString(resultMap));
 
         String result = "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
         return result;
@@ -72,6 +76,13 @@ public class WeixinPayController {
 
     /***
      * 微信支付：创建二维码
+     * 普通订单：
+     *      exchange：exchange.order
+     *      routingKey：queue.order
+     * 秒杀订单：
+     *      exchange：exchange.seckillorder
+     *      routingKey：queue.seckillorder
+     * 将exchange和routingKey的数据打包转成JSON，设置到attach，传递给微信服务器，微信服务器原样返回，实现自定义数据传递
      * @return
      */
     @RequestMapping(value = "/create/native")

@@ -11,7 +11,7 @@ import java.text.ParseException;
 import java.util.Map;
 
 @Component
-@RabbitListener(queues = "${mq.pay.queue.order}")
+@RabbitListener(queues = "${mq.pay.queue.order}")        //指定监听队列
 public class OrderMessageListener {
 
     @Autowired

@@ -66,9 +66,26 @@ public class SeckillGoodsPushTask {
                 System.out.println(timespace+"---------商品ID："+seckillGood.getId());
                 //将其中一个时间段内的商品信息存入Redis
                 redisTemplate.boundHashOps(timespace).put(seckillGood.getId(),seckillGood);
+
+                //给每个秒杀商品分配一个队列，队列长度是商品的库存数，内容无所谓，只是为了可以从队列中取出数据
+                redisTemplate.boundListOps("SeckillGoodsCountList_"+seckillGood.getId()).leftPushAll(pushIds(seckillGood.getStockCount(),seckillGood.getId()));
             }
 
         }
+    }
+
+    /***
+     * 将商品ID存入到数组中
+     * @param len:长度
+     * @param id :值
+     * @return
+     */
+    public Long[] pushIds(int len,Long id){
+        Long[] ids = new Long[len];
+        for (int i = 0; i <ids.length ; i++) {
+            ids[i]=id;
+        }
+        return ids;
     }
 
 }

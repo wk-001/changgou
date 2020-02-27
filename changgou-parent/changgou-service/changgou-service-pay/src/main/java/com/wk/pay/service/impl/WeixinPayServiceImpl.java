@@ -1,8 +1,10 @@
 package com.wk.pay.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.github.wxpay.sdk.WXPayUtil;
 import com.wk.pay.service.WeixinPayService;
 import entity.HttpClient;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -71,6 +73,13 @@ public class WeixinPayServiceImpl implements WeixinPayService {
 
     /**
      * 微信支付：创建支付二维码
+     * 普通订单：
+     *      exchange：exchange.order
+     *      routingKey：queue.order
+     * 秒杀订单：
+     *      exchange：exchange.seckillorder
+     *      routingKey：queue.seckillorder
+     * 将exchange和routingKey的数据打包转成JSON，设置到attach，传递给微信服务器，微信服务器原样返回，实现自定义数据传递
      * @param paramMap
      * @return
      */
@@ -88,6 +97,17 @@ public class WeixinPayServiceImpl implements WeixinPayService {
             param.put("spbill_create_ip","127.0.0.1");          //终端IP
             param.put("notify_url",notifyurl);          //交易结果回调通知地址
             param.put("trade_type","NATIVE");          //交易类型
+
+            Map<String,String> attachMap = new HashMap<>();
+            attachMap.put("exchange",paramMap.get("exchange"));     //MQ交换机
+            attachMap.put("routingKey",paramMap.get("routingKey"));     //MQ路由的名字
+            //如果是秒杀订单，需要传username
+            if(StringUtils.isNotEmpty(paramMap.get("username"))){
+                attachMap.put("username",paramMap.get("username"));
+            }
+
+            param.put("attach", JSON.toJSONString(attachMap));
+
             //map转成xml字符串可以携带签名
             String signedXml = WXPayUtil.generateSignedXml(param, partnerkey);
 

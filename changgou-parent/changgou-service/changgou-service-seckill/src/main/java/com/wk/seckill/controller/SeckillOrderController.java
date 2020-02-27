@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import com.wk.seckill.pojo.SeckillOrder;
 import com.wk.seckill.service.SeckillOrderService;
 import entity.Result;
+import entity.SeckillStatus;
 import entity.StatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,33 @@ public class SeckillOrderController {
 
     @Autowired
     private SeckillOrderService seckillOrderService;
+
+    /**
+     * 根据用户名查询秒杀订单状态
+     * @param userName
+     * @return
+     */
+    @GetMapping("query")
+    public Result<SeckillOrder> queryStatus(String userName){
+        SeckillStatus status = seckillOrderService.getStatus(userName);
+        if (status != null) {
+            return new Result(true,StatusCode.OK,"订单状态查询成功！",status);
+        }
+        return new Result(false,StatusCode.NOTFOUNDERROR,"无此订单信息！");
+    }
+
+    /**
+     * 添加秒杀订单
+     * @param time 秒杀活动时间段
+     * @param goodsId   秒杀商品ID
+     * @param userName  用户名
+     * @return
+     */
+    @RequestMapping("add")
+    public Result addOrder(String time,Long goodsId,String userName){
+        seckillOrderService.addOrder(time,goodsId,userName);
+        return new Result(true,StatusCode.OK,"正在排队...");
+    }
 
     /***
      * SeckillOrder分页条件搜索实现
