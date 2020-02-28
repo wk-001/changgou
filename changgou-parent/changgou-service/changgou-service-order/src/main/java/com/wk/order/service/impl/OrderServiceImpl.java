@@ -10,6 +10,7 @@ import com.wk.order.pojo.OrderItem;
 import com.wk.order.service.OrderService;
 import com.wk.user.feign.UserFeign;
 import entity.IdWorker;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
@@ -57,6 +58,7 @@ public class OrderServiceImpl implements OrderService {
      * 增加Order和订单的商品明细
      * @param order
      */
+    @GlobalTransactional        //Seata全局分布式事务
     @Override
     public void add(Order order){
         /**
