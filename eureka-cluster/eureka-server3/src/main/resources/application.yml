@@ -1,0 +1,10 @@
+server:
+  port: 8763
+eureka:
+  instance:
+    hostname: eureka-server3
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:    #同步数据到其他的eureka节点
+      defaultZone: http://eureka-server1:8761/eureka/,http://eureka-server2:8762/eureka/
