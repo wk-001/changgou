@@ -26,7 +26,7 @@ public class WeixinPayController {
     private RabbitTemplate rabbitTemplate;
 
     /***
-     * 支付回调
+     * 以网络输入流的形式返回支付回调xml数据
      * @param request
      * @return
      */

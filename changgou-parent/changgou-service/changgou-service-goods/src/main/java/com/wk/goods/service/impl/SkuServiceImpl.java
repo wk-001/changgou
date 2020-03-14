@@ -193,7 +193,7 @@ public class SkuServiceImpl implements SkuService {
      */
     @Override
     public Sku findById(Long id){
-        return  skuMapper.selectByPrimaryKey(id);
+        return skuMapper.selectByPrimaryKey(id);
     }
 
     /**
@@ -207,6 +207,7 @@ public class SkuServiceImpl implements SkuService {
 
     @Override
     public void decrCount(Map<String, Integer> decrMap) {
+        //int i = 10/0; 无法回滚！！！
         for (Map.Entry<String, Integer> entry : decrMap.entrySet()) {
             //商品ID
             String skuId = entry.getKey();

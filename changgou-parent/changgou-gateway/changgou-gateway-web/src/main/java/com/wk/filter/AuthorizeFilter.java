@@ -45,6 +45,7 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
         //获取用户令牌信息，令牌可能存在
         // 请求头文件中，获取请求头中第一个令牌信息
         String token = request.getHeaders().getFirst(AUTHORIZE_TOKEN);
+
         //true：令牌在头文件中 false：令牌不在头文件中
         boolean hasToken = true;
 

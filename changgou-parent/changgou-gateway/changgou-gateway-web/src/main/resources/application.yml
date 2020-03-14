@@ -17,16 +17,17 @@ spring:
               predicates:                     #路由断言/路由规则设置
                 #- Host=cloud.itheima.com**     #Host 路由 用户请求的域名规则配置，所有以cloud.itheima.com开头的请求都会被路由到18081的微服务
                 #- Path=/brand/**                #路径匹配过滤配置，所有以brand开头的请求都会被路由到18081的微服务
-                - Path=/api/goods/**                      #路径匹配过滤配置，所有请求都会被路由到18081的微服务
+                #- Path=/**							#路径匹配过滤配置，所有请求都会被路由到18081的微服务
+                - Path=/api/goods/**                      
                 #- Path=/api/brand/**
               filters:                        #过滤条件
-                #- PrefixPath=/brand             #用户请求http://localhost:8001的时候我们让它请求真实地址http://localhost:8001/brand
+                #- PrefixPath=/brand             #用户请求http://localhost:8001的时候在路径后添加前缀，让它请求真实地址http://localhost:8001/brand
                 - StripPrefix=1                 #过滤请求中的第一个路径，=2就过滤前两个路径，如请求http://localhost:8001/api/brand 真实请求http://localhost:8001/brand，请求路径以/区分,一个/代表一个路径
                 - name: RequestRateLimiter      #局部限流过滤器，请求数限流 名字固定 ，使用默认的facatory
                   args:
                     key-resolver: "#{@ipKeyResolver}"           #用户身份唯一标识符。获取Spring容器中的ipKeyResolver对象
                     redis-rate-limiter.replenishRate: 1         #每秒钟只允许有一个请求
-                    redis-rate-limiter.burstCapacity: 1         #允许最大并发4个请求，宽限个数
+                    redis-rate-limiter.burstCapacity: 4         #允许最大并发4个请求，宽限个数
 
             - id: changgou_user_route        #用户微服务唯一标识符
               uri: lb://user

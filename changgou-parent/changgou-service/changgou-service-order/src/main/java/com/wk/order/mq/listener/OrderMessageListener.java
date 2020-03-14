@@ -42,7 +42,7 @@ public class OrderMessageListener {
             }else {
                 /*支付失败，关闭支付，取消订单，回滚库存
                 * 关闭订单参考：https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=9_3*/
-                orderService.delete(out_trade_no);
+                orderService.deleteOrder(out_trade_no);
             }
 
         }

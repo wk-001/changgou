@@ -210,6 +210,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void addUserPoints(String username, Integer points) {
+        //int i = 10/0;
         userMapper.addUserPoints(username, points);
     }
 }
